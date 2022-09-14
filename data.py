@@ -11,8 +11,6 @@ def process_data(path, image_path, label_path):
 
     return images, masks
 
-
-# load data from folder
 def load_data(train_path, test_path):
 
     train_x, train_y = process_data(train_path, "images", "labels")
@@ -23,8 +21,6 @@ def load_data(train_path, test_path):
 
     return (train_x, train_y), (valid_x, valid_y), (test_x, test_y)
 
-
-# read image
 def read_image(x):
     x = cv.imread(x, cv.IMREAD_COLOR)
     x = cv.resize(x, [256, 256])
@@ -32,8 +28,6 @@ def read_image(x):
     x = x.astype(np.float32)
     return x
 
-
-# read mask
 def read_mask(y):
     y = cv.imread(y, cv.IMREAD_GRAYSCALE)
     y = cv.resize(y, [256, 256])
