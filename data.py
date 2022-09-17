@@ -1,3 +1,7 @@
+"""
+loading of the images and then preprocessing
+"""
+
 import os
 import cv2 as cv
 import tensorflow as tf
@@ -13,13 +17,14 @@ def process_data(path, image_path, label_path):
 
 def load_data(train_path, test_path):
 
-    train_x, train_y = process_data(train_path, "images", "labels")
-    test_x, test_y = process_data(test_path, "images", "labels")
+    train_x, train_y = process_data(train_path, "images", "masks")
+    test_x, test_y = process_data(test_path, "images", "masks")
 
-    train_x, valid_x = train_test_split(train_x, test_size=0.2)
-    train_y, valid_y = train_test_split(train_y, test_size=0.2)
+    train_x, valid_x = train_test_split(train_x, test_size=0.2, shuffle=False)
+    train_y, valid_y = train_test_split(train_y, test_size=0.2, shuffle=False)
 
     return (train_x, train_y), (valid_x, valid_y), (test_x, test_y)
+    # return (train_x, train_y), (test_x, test_y)
 
 def read_image(x):
     x = cv.imread(x, cv.IMREAD_COLOR)
@@ -37,7 +42,7 @@ def read_mask(y):
 
 def tf_dataset(x, y, batch_size=8):
     dataset = tf.data.Dataset.from_tensor_slices((x, y))
-    dataset = dataset.shuffle(buffer_size=40)
+    dataset = dataset.shuffle(buffer_size=5000)
     dataset = dataset.map(preprocess)
     dataset = dataset.batch(batch_size)
     dataset = dataset.repeat()
@@ -60,17 +65,3 @@ def preprocess(x, y):
     mask.set_shape([256, 256, 3])
 
     return image, mask
-
-
-if __name__ == "__main__":
-
-    train_path = "dataset/train"
-    test_path = "dataset/test"
-    (train_x, train_y), (valid_x, valid_y), (test_x, test_y) = load_data(train_path, test_path)
-
-    print(f"Dataset: Train: {len(train_x)} - Valid: {len(valid_x)} - Test: {len(test_x)}")
-
-    dataset = tf_dataset(train_x, train_y, batch_size=8)
-
-    for x, y in dataset:
-        print(x.shape, y.shape)
